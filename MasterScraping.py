@@ -15,7 +15,10 @@ config = {
 }
 slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http://localhost:5003/', 0)]
 
+rows = ()
+rows_uax = () 
 
+###balanceador de carga
 def send_request(url, url_data):
     response = requests.get('{}/scrapi/{}'.format(url,url_data))
     resultado = response.json()
@@ -35,11 +38,30 @@ def send_load_balanced_request(url_data):
     return  index_min_slave 
 
 
+####-----------------------------------------------------------------------------------------------
+
+def para_nuevas_url():
+    if(rows == rows_uax):
+        print("poto")
+    else: 
+        print("aaaaa")
+    pass 
 
 
-def consulta():
-    # Agregue aquí el código para realizar la consulta
-    print("Realizando consulta...")
+def iniciar_programa():
+    #Agregue aquí el código para realizar la consulta
+    for row in rows:
+        print(row[1])
+        minimo = send_load_balanced_request(row[1])
+        print(minimo)
+        insertar_en_base_datos(row[1],minimo)
+        #peticion_esclavo(row[1])
+    
+def demonio_consulta_datos():
+        rows_uax = consultar_base_dato(config)
+        print("realizando consulta demonio")
+        para_nuevas_url()
+        
 
 def consultar_base_dato(config):
     conn = mysql.connector.connect(**config)
@@ -87,29 +109,41 @@ def peticion_esclavo(url):
     resultado = response.json()
     print(resultado)
 
-def main():
-    schedule.every().day.at("15:54").do(consulta)  # Ejecuta la función "consulta" todos los días a las 12:00
-    ##schedule.every(30).minutes.do(consultar_base_dato(config)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+# def main():
+#     schedule.every().day.at("15:54").do(iniciar_programa)  # Ejecuta la función "consulta" todos los días a las 12:00
+#     ##schedule.every(30).minutes.do(consultar_base_dato(config)
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(1)
 
 if __name__ == '__main__':
     ##with daemon.DaemonContext():
     ##main()
+
     rows = consultar_base_dato(config)
+    iniciar_programa()
     
+    schedule.every(10).seconds.do(demonio_consulta_datos)
+    print("hola mundito")
+    # schedule.every().day.at("15:56").do(iniciar_programa)
+    # schedule.every().day.at("15:56").do(iniciar_programa)
     
-    num_processes = len(rows)
-    for i in rows:
-        print(i)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+    
+
+
 
     # for row in rows:
     #     print(row[1])
     #     minimo = send_load_balanced_request(row[1])
     #     print(minimo)
     #     insertar_en_base_datos(row[1],minimo)
-    #     ##peticion_esclavo(row[1])
+        ##peticion_esclavo(row[1])
 
-    #     # with multiprocessing.Pool(num_processes) as pool:
-    #     #         results = pool.map(send_load_balanced_request(row[1]), range(num_processes))
+        # with multiprocessing.Pool(num_processes) as pool:
+        #         results = pool.map(send_load_balanced_request(row[1]), range(num_processes))
+
+

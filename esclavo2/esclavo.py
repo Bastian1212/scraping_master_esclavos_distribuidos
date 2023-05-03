@@ -22,7 +22,6 @@ def scraping_data(url):
     data=""
     try:
         response = requests.get("https://"+url+"/") # Hacer una solicitud GET al sitio web
-        print("hola")
         soup = BeautifulSoup(response.text, 'html.parser') # Analizar el contenido HTML de la página
         # Extraer todas las palabras clave de la página web
         words = re.findall('\w+', soup.text)
