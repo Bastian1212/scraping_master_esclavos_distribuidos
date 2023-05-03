@@ -16,7 +16,7 @@ config = {
 slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http://localhost:5003/', 0)]
 
 rows = ()
-rows_uax = () 
+
 
 ###balanceador de carga
 def send_request(url, url_data):
@@ -40,12 +40,31 @@ def send_load_balanced_request(url_data):
 
 ####-----------------------------------------------------------------------------------------------
 
-def para_nuevas_url():
-    if(rows == rows_uax):
-        print("poto")
+def para_nuevas_url(rows_aux):
+    global rows
+    if(len(rows) == len(rows_aux)):
+        pass   
     else: 
-        print("aaaaa")
-    pass 
+        tuplas_filtradas = [tupla for tupla in rows_aux if any(x is None for x in tupla)]
+        for row in tuplas_filtradas:
+            minimo = send_load_balanced_request(row[1])
+            insertar_en_base_datos(row[1],minimo)
+        rows = consultar_base_dato(config)
+        
+        
+def consultar_por_hora():
+    global rows
+    now = datetime.now()
+    hora_actual = now.strftime("%H")
+    for row in rows:
+        hora_data = str(row[2])
+        if(str(hora_actual) !=  hora_data[:2]):
+            print("no son iguales ")
+        else:
+            minimo = send_load_balanced_request(row[1])
+            insertar_en_base_datos(row[1],minimo)        
+    
+    rows = consultar_base_dato(config)
 
 
 def iniciar_programa():
@@ -58,9 +77,9 @@ def iniciar_programa():
         #peticion_esclavo(row[1])
     
 def demonio_consulta_datos():
-        rows_uax = consultar_base_dato(config)
+        rows_aux = consultar_base_dato(config)
         print("realizando consulta demonio")
-        para_nuevas_url()
+        para_nuevas_url(rows_aux)
         
 
 def consultar_base_dato(config):
@@ -121,10 +140,11 @@ if __name__ == '__main__':
     ##main()
 
     rows = consultar_base_dato(config)
+
     iniciar_programa()
-    
-    schedule.every(10).seconds.do(demonio_consulta_datos)
-    print("hola mundito")
+   
+    schedule.every(30).minutes.do(demonio_consulta_datos)
+    schedule.every().hour.at(":00").do(consultar_por_hora)
     # schedule.every().day.at("15:56").do(iniciar_programa)
     # schedule.every().day.at("15:56").do(iniciar_programa)
     
