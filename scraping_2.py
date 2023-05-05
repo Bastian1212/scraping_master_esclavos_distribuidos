@@ -5,7 +5,7 @@ import json
 
 # Lista de URLs a extraer
 # urls = ['https://www.newegg.com/Video-Cards-Video-Devices/Category/ID-38', 'https://www.google.com', 'https://www.bbc.com']
-urls = ["https://simple.ripley.cl"]
+urls = ["https://www.pcfactory.cl/producto/43968-gear-desktop-intel-pentium-gold-g6405-4gb-1tb"]
 url1 = urls[0]
 url1 = url1[8:]
 print(url1)
@@ -34,5 +34,5 @@ with open('index.json', 'w') as outfile:
     json.dump(index, outfile)
 
 
-with open('{}.txt'.format(url1), 'w') as archivo:
+with open('{}.txt'.format("prueba"), 'w') as archivo:
     archivo.write(data)

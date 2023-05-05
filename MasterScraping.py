@@ -6,6 +6,9 @@ import mysql.connector
 import requests
 import os 
 import multiprocessing
+import json
+import re
+from urllib.parse import urlparse
 config = {
   'user': 'root',
   'password': '',
@@ -18,10 +21,25 @@ slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http:/
 rows = ()
 
 
+def obtener_dominio(url):
+    ## obtener un diferenciador para la  paginas con el mismo dominio 
+    cant= len(url)
+    cant= "" + str(cant)
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc
+    
+    return domain+"_"+cant 
+
 ###balanceador de carga
 def send_request(url, url_data):
-    response = requests.get('{}/scrapi/{}'.format(url,url_data))
+    data = {'url_scraping': url_data }
+    response = requests.post('{}/scrapi'.format(url), json=data)
+    if response.status_code == 200:
+        print('La solicitud fue exitosa.')
+    else:
+        print('La solicitud falló con el código de estado:', response.status_code)
     resultado = response.json()
+    # data = json.loads(response.text)
     print(resultado)
 
 def get_min_slave():
@@ -67,14 +85,7 @@ def consultar_por_hora():
     rows = consultar_base_dato(config)
 
 
-def iniciar_programa():
-    #Agregue aquí el código para realizar la consulta
-    for row in rows:
-        print(row[1])
-        minimo = send_load_balanced_request(row[1])
-        print(minimo)
-        insertar_en_base_datos(row[1],minimo)
-        #peticion_esclavo(row[1])
+
     
 def demonio_consulta_datos():
         rows_aux = consultar_base_dato(config)
@@ -113,6 +124,7 @@ def insertar_en_base_datos(url,id_esclavo):
     hora_actual = now.strftime("%H:%M:%S")
 
     id = objeto[0]
+    url = obtener_dominio(url)
     ruta_absoluta = os.path.abspath("{}.txt".format(url))
     
     ###actualiza la base de datos 
@@ -123,10 +135,10 @@ def insertar_en_base_datos(url,id_esclavo):
     
     conn.close()
 
-def peticion_esclavo(url):
-    response = requests.get('{}:{}/scrapi/{}'.format("http://127.0.0.1","5001",url))
-    resultado = response.json()
-    print(resultado)
+# def peticion_esclavo(url):
+#     response = requests.get('{}:{}/scrapi/{}'.format("http://127.0.0.1","5001",url))
+#     resultado = response.json()
+#     print(resultado)
 
 # def main():
 #     schedule.every().day.at("15:54").do(iniciar_programa)  # Ejecuta la función "consulta" todos los días a las 12:00
@@ -135,12 +147,21 @@ def peticion_esclavo(url):
 #         schedule.run_pending()
 #         time.sleep(1)
 
+def iniciar_programa():
+    #Agregue aquí el código para realizar la consulta
+    for row in rows:
+        print(row[1])
+        minimo = send_load_balanced_request(row[1])
+        print(minimo)
+        insertar_en_base_datos(row[1],minimo)
+        #peticion_esclavo(row[1])
+
+
 if __name__ == '__main__':
     ##with daemon.DaemonContext():
     ##main()
 
     rows = consultar_base_dato(config)
-
     iniciar_programa()
    
     schedule.every(30).minutes.do(demonio_consulta_datos)
