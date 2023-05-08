@@ -8,6 +8,8 @@ import os
 import multiprocessing
 import json
 import re
+from dotenv import load_dotenv
+
 from urllib.parse import urlparse
 config = {
   'user': 'root',
@@ -18,7 +20,14 @@ config = {
 }
 slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http://localhost:5003/', 0)]
 
+## para los datos de la base de datos 
 rows = ()
+
+
+def init_esclavos(): 
+    cantidad_esclavos = (os.getenv("ESCLAVOS_CANT"))
+    print(cantidad_esclavos)
+    
 
 
 def obtener_dominio(url):
@@ -135,17 +144,6 @@ def insertar_en_base_datos(url,id_esclavo):
     
     conn.close()
 
-# def peticion_esclavo(url):
-#     response = requests.get('{}:{}/scrapi/{}'.format("http://127.0.0.1","5001",url))
-#     resultado = response.json()
-#     print(resultado)
-
-# def main():
-#     schedule.every().day.at("15:54").do(iniciar_programa)  # Ejecuta la función "consulta" todos los días a las 12:00
-#     ##schedule.every(30).minutes.do(consultar_base_dato(config)
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
 
 def iniciar_programa():
     #Agregue aquí el código para realizar la consulta
@@ -163,7 +161,8 @@ if __name__ == '__main__':
 
     rows = consultar_base_dato(config)
     iniciar_programa()
-   
+
+
     schedule.every(30).minutes.do(demonio_consulta_datos)
     schedule.every().hour.at(":00").do(consultar_por_hora)
     # schedule.every().day.at("15:56").do(iniciar_programa)
@@ -176,8 +175,8 @@ if __name__ == '__main__':
     
 
 
-
-    # for row in rows:
+    ###########################################################################
+    # for row in rows:z
     #     print(row[1])
     #     minimo = send_load_balanced_request(row[1])
     #     print(minimo)
@@ -186,5 +185,6 @@ if __name__ == '__main__':
 
         # with multiprocessing.Pool(num_processes) as pool:
         #         results = pool.map(send_load_balanced_request(row[1]), range(num_processes))
+
 
 
