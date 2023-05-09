@@ -4,13 +4,13 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import re
-port = 5003
+port = 5001
 app = Flask(__name__)
+
 
 def escribir_archivo(url,data):
     with open('./data/{}.txt'.format(url), 'w') as archivo:
         archivo.write(data)
-
 
 
 def obtener_dominio(url):
