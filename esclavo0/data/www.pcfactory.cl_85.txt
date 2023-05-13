@@ -2479,6 +2479,7 @@ G6405
 4GB
 1TB
 ID43968
+32
 Quedan
 3
 Unid
@@ -2576,6 +2577,7 @@ G6405
 1TB
 ID
 43968
+32
 Quedan
 3
 Unid

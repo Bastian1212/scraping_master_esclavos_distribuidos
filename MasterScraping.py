@@ -26,6 +26,41 @@ rows = ()
 
 load_dotenv()
 
+def llamada_para_nuevo_link(nuevo_url): 
+    try: 
+        response = requests.get('{}'.format("http://0.0.0.0:8000/api/............")) 
+        resultado = response.json()
+        if(resultado['success'] == True):
+            print("se realizo la indexion correctamente....")
+            return True
+        elif(resultado['success'] == False):
+            print("paso un error en el back.....")
+            return False
+        
+    except:
+        print("error.... ")
+
+    pass
+
+
+def llamada_back_elastich(): 
+    try: 
+        response = requests.get('{}'.format("http://0.0.0.0:8000/api/elasticsearch/refresh")) 
+        resultado = response.json()
+        if((resultado['success'] == True)):
+           print("todo ok en la indexion de los datos")
+
+           return True 
+        elif(resultado['success'] == False):
+            print("desde aca por que es falso.....")
+            return False
+            pass
+    except:
+        print("error.... ")
+
+    pass 
+
+
 def init_esclavos(): 
     global slaves
     cantidad_esclavos = int((os.getenv("ESCLAVOS_CANT")))
@@ -198,6 +233,8 @@ if __name__ == '__main__':
     # print(slaves_total)
     # print(slaves)
     
+    ##llamada_back_elastich()
+
     if(1):
 
         rows = consultar_base_dato(config)
