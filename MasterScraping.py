@@ -228,7 +228,7 @@ if __name__ == '__main__':
     ##with daemon.DaemonContext():
     ##main()
 
-    # init_esclavos()
+   
 
     # print(slaves_total)
     # print(slaves)
